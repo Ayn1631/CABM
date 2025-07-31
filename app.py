@@ -4,10 +4,12 @@ CABM应用主文件
 import os
 import sys
 import json
+from io import BytesIO
 import time
 from pathlib import Path
-from flask import Flask, render_template, request, jsonify, send_from_directory, Response
-import traceback
+from flask import Flask, render_template, request, jsonify, send_from_directory, Response ,send_file
+from werkzeug.utils import secure_filename
+from pydub import AudioSegmentimport traceback
 # 添加项目根目录到系统路径
 sys.path.append(str(Path(__file__).resolve().parent))
 
@@ -16,6 +18,8 @@ from services.chat_service import chat_service
 from services.image_service import image_service
 from services.scene_service import scene_service
 from services.option_service import option_service
+from services.gsapi_service import ttsService
+from services.damoasr_service import *
 from utils.api_utils import APIError
 
 # 初始化配置
@@ -35,6 +39,16 @@ app = Flask(
 
 # 设置调试模式
 app.debug = app_config["debug"]
+
+UPLOAD_FOLDER = "uploads"
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+def convert_to_16k_wav(input_path, output_path):
+    """转换音频为 16kHz 单声道 WAV"""
+    audio = AudioSegment.from_file(input_path)
+    audio_16k = audio.set_frame_rate(16000).set_channels(1)
+    audio_16k.export(output_path, format="wav")
+    return output_path
 
 @app.route('/')
 def index():
@@ -81,6 +95,40 @@ def index():
         show_scene_name=show_scene_name
     )
 
+@app.route('/api/mic', methods=['POST'])
+def mic_transcribe():
+    if 'audio' not in request.files:
+        return jsonify({'error': '缺少音频文件'}), 400
+
+    file = request.files['audio']
+    if file.filename == '':
+        return jsonify({'error': '未选择文件'}), 400
+
+    filename = secure_filename(file.filename)
+    temp_input = os.path.join(UPLOAD_FOLDER, filename)
+    wav_path = os.path.join(UPLOAD_FOLDER, "temp_recording.wav")
+
+    try:
+        # 保存上传文件
+        file.save(temp_input)
+
+        # 转换格式
+        convert_to_16k_wav(temp_input, wav_path)
+
+        # 调用 ASR 服务识别
+        text = transcribe_audio(wav_path)
+
+        return jsonify({'text': text})
+
+    except Exception as e:
+        return jsonify({'error': '语音识别失败', 'detail': str(e)}), 500
+
+    finally:
+        # 清理临时文件
+        if os.path.exists(temp_input):
+            os.remove(temp_input)
+        if os.path.exists(wav_path):
+            os.remove(wav_path)
 @app.route('/api/chat', methods=['POST'])
 def chat():
     """聊天API"""
@@ -344,11 +392,10 @@ def set_character(character_id):
 def exit_app():
     """退出应用API"""
     try:
-        # 在实际应用中，这里可能需要清理资源或保存状态
-        # 这里简化处理，直接返回成功
+        os._exit(0) 
         return jsonify({
             'success': True,
-            'message': '应用已退出'
+            'message': '应用开始退出'
         })
         
     except Exception as e:
@@ -425,6 +472,38 @@ def get_character_images(character_id):
 def serve_character_image(filename):
     """提供角色图片"""
     return send_from_directory('data/images', filename)
+
+
+@app.route('/api/tts', methods=['POST'])
+def serve_tts():
+    tts = ttsService()
+    if not tts.running():
+        return jsonify({"error": "语音合成服务未启用/连接失败"}), 400
+    data = request.get_json()
+    text = data.get("text", "").strip()
+    role = data.get("role", "AI助手")
+    print(f"请求TTS: 角色={role}, 文本={text}")
+    if not text:
+        return jsonify({"error": "文本为空"}), 400
+
+    try:
+        audio_bytes = tts.get_tts(text, role)  # 应返回 bytes
+        if not audio_bytes:
+            return jsonify({"error": "TTS生成失败"}), 500
+
+        audio_io = BytesIO(audio_bytes)
+        audio_io.seek(0)
+
+        return send_file(
+            audio_io,
+            mimetype='audio/wav',
+            as_attachment=False,
+            download_name=None
+        )
+    except Exception as e:
+        print(f"TTS error: {e}")
+        return jsonify({"error": "语音合成失败"}), 500
+
 
 if __name__ == '__main__':
     # 设置系统提示词，使用角色提示词

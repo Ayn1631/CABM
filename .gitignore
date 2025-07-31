@@ -16,6 +16,7 @@ data/images/
 plan.txt
 backups/
 log.txt
+银狼模型/
 
 # Python缓存文件
 __pycache__/
@@ -43,6 +44,7 @@ var/
 venv/
 ENV/
 env/
+.conda/
 
 # IDE文件
 .idea/

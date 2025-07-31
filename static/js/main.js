@@ -25,8 +25,9 @@ const messageInput = document.getElementById('messageInput');
 const sendButton = document.getElementById('sendButton');
 
 // const clearButton = document.getElementById('clearButton'); // 已禁用：清空对话按钮
-
 const backgroundButton = document.getElementById('backgroundButton');
+
+const playaudioButton = document.getElementById('playaudioButton');
 
 const historyButton = document.getElementById('historyButton');
 
@@ -37,7 +38,6 @@ const continueButton = document.getElementById('continueButton');
 const skipButton = document.getElementById('skipButton');
 
 const micButton = document.getElementById('micButton');
-
 const clickToContinue = document.getElementById('clickToContinue');
 const optionButtonsContainer = document.getElementById('optionButtonsContainer');
 const optionButtons = document.getElementById('optionButtons');
@@ -125,6 +125,7 @@ document.addEventListener('DOMContentLoaded', () => {
     sendButton.addEventListener('click', sendMessage);
 
     // clearButton.addEventListener('click', clearChat); // 已禁用：清空对话按钮事件
+    playaudioButton.addEventListener('click', playAudio);
 
     backgroundButton.addEventListener('click', changeBackground);
 
@@ -139,7 +140,6 @@ document.addEventListener('DOMContentLoaded', () => {
     continueButton.addEventListener('click', continueOutput);
 
     skipButton.addEventListener('click', skipTyping);
-
     micButton.addEventListener('click', toggleRecording);
 
     errorCloseButton.addEventListener('click', hideError);
@@ -448,7 +448,62 @@ async function clearChat() {
 }
 */
 
+async function playAudio() {
+    if (isProcessing) {
+        showError('正在处理请求，请稍候');
+        return;
+    }
 
+    const text = currentMessage.textContent.trim();
+    if (!text) {
+        showError('无法朗读空内容');
+        return;
+    }
+
+    showLoading();
+
+    try {
+        const response = await fetch('/api/tts', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                text: text,
+                role: currentCharacter ? currentCharacter.name : 'AI助手'
+            })
+        });
+
+        if (!response.ok) {
+            const errData = await response.json().catch(() => ({}));
+            throw new Error(errData.error || '获取音频失败');
+        }
+
+        const blob = await response.blob();
+        if (blob.size === 0) {
+            throw new Error('收到的音频数据为空');
+        }
+
+        const audio = new Audio();
+        const url = URL.createObjectURL(blob);
+        audio.src = url;
+
+        audio.onended = () => {
+            URL.revokeObjectURL(url);
+        };
+        audio.onerror = () => {
+            showError('音频播放失败');
+            URL.revokeObjectURL(url);
+        };
+
+        await audio.play();
+    } catch (error) {
+        console.error('播放音频失败:', error);
+        showError(`播放失败: ${error.message}`);
+    } finally {
+        hideLoading();
+    }
+}
 
 // 更换背景
 
@@ -1277,61 +1332,68 @@ function skipTyping() {
     }
 }
 
-let recognition; // 全局变量存储语音识别实例
+let mediaRecorder;
+let audioChunks = [];
 
+// 切换录音状态
 function toggleRecording() {
-    let isRecording = micButton.classList.toggle('recording');
-    if (isRecording) {
-        if (!recognition) {
-            const SpeechRecognition = window.SpeechRecognition || 
-                                    window.webkitSpeechRecognition ||
-                                    window.mozSpeechRecognition || 
-                                    window.msSpeechRecognition;
-            
-            if (!SpeechRecognition) {
-                console.error('当前浏览器不支持语音识别API');
-                showError('您的浏览器不支持语音识别功能');
-                micButton.classList.remove('recording');
-                return;
-            }
+    const isRecording = micButton.classList.toggle('recording');
 
-            recognition = new SpeechRecognition();
-            recognition.lang = 'zh-CN';
-            recognition.interimResults = false;
-            
-            recognition.onresult = (event) => {
-                const transcript = event.results[0][0].transcript.trim();
-                if (transcript) {
-                    messageInput.value += transcript;
-                }
-            };
-            
-            recognition.onerror = (event) => {
-                console.error('语音识别错误:', event.error);
-                showError(`语音识别错误: ${event.error}`);
+    if (isRecording) {
+        // 开始录音
+        navigator.mediaDevices.getUserMedia({ audio: true })
+            .then(stream => {
+                mediaRecorder = new MediaRecorder(stream);
+                audioChunks = [];
+
+                mediaRecorder.ondataavailable = event => {
+                    if (event.data.size > 0) {
+                        audioChunks.push(event.data);
+                    }
+                };
+
+                mediaRecorder.onstop = () => {
+                    const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                    const formData = new FormData();
+                    formData.append('audio', audioBlob, 'recording.webm');
+                    showLoading();
+                    // 发送到 Flask 后端
+                    fetch('/api/mic', {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log('后端返回:', data);
+                        if (data.text) {
+                            // 假设后端返回识别后的文本
+                            messageInput.value += data.text;
+                        }
+                        hideLoading();
+
+                    })
+                    .catch(err => {
+                        hideLoading();
+                        console.error('上传失败:', err);
+                        showError('录音上传失败');
+                    });
+                };
+
+                mediaRecorder.start();
+            })
+            .catch(err => {
+                console.error('麦克风访问失败:', err);
+                showError('无法访问麦克风: ' + err.message);
                 micButton.classList.remove('recording');
-            };
-            
-            recognition.onend = () => {
-                if (micButton.classList.contains('recording')) {
-                    micButton.classList.remove('recording');
-                }
-            };
-        }
-        
-        try {
-            recognition.start();
-        } catch (e) {
-            console.error('启动语音识别失败:', e);
-            showError('无法启动语音识别');
-            micButton.classList.remove('recording');
-        }
+            });
     } else {
+        // 停止语音识别
         if (recognition) {
             recognition.stop();
         }
     }
 }
+
 
 // 禁用用户输入
 function disableUserInput() {
@@ -1345,9 +1407,9 @@ function disableUserInput() {
 function enableUserInput() {
     messageInput.disabled = false;
     sendButton.disabled = false;
-    micButton.disabled = false;
     messageInput.placeholder = "输入消息...";
 }
+    micButton.disabled = false;
 
 // 显示"点击屏幕继续"提示
 function showContinuePrompt(promptText = '▽') {
@@ -1509,6 +1571,7 @@ function registrationShortcuts(config) {
 }
 
 registrationShortcuts({
+    Space: playAudio,
     Enter: continueOutput,
     s: skipTyping,
     h: toggleHistory,
