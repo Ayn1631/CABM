@@ -2,21 +2,21 @@
 
 ## Overall Assessment
 
-- **Quality Score**: 38.50/100
+- **Quality Score**: 38.45/100
 - **Quality Level**: 😐 Slightly stinky youth - A faint whiff, open a window and hope for the best.
 - **Analyzed Files**: 68
-- **Total Lines**: 20562
+- **Total Lines**: 20533
 
 ## Quality Metrics
 
 | Metric | Score | Weight | Status |
 |------|------|------|------|
-| State Management | 17.62 | 0.20 | ✓✓ |
+| State Management | 17.53 | 0.20 | ✓✓ |
 | Error Handling | 25.00 | 0.10 | ✓ |
 | Comment Ratio | 27.75 | 0.15 | ✓ |
 | Code Structure | 30.00 | 0.15 | ✓ |
 | Code Duplication | 35.00 | 0.15 | ○ |
-| Cyclomatic Complexity | 68.30 | 0.30 | ⚠ |
+| Cyclomatic Complexity | 68.18 | 0.30 | ⚠ |
 
 ## Problem Files (Top 5)
 
