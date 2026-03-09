@@ -30,10 +30,6 @@
 **Issue Categories**: 🔄 Complexity Issues:8, 📝 Comment Issues:1, ⚠️ Other Issues:4
 
 **Main Issues**:
-- Function list_stories has very high cyclomatic complexity (19), consider refactoring
-- Function create_story has very high cyclomatic complexity (44), consider refactoring
-- Function story_chat_stream has very high cyclomatic complexity (37), consider refactoring
-- Function generate has very high cyclomatic complexity (31), consider refactoring
 - Function 'list_stories' () is too long (81 lines), consider splitting
 - Function 'list_stories' () complexity is severely high (19), must be simplified
 - Function 'create_story' () is extremely long (211 lines), must be split
@@ -43,11 +39,19 @@
 - Function 'generate' () is extremely long (172 lines), must be split
 - Function 'generate' () complexity is severely high (31), must be simplified
 - Code comment ratio is low (9.28%), consider adding more comments
+- Function list_stories has very high cyclomatic complexity (19), consider refactoring
+- Function create_story has very high cyclomatic complexity (44), consider refactoring
+- Function story_chat_stream has very high cyclomatic complexity (37), consider refactoring
+- Function generate has very high cyclomatic complexity (31), consider refactoring
 
 ### 3. /home/runner/work/CABM/CABM/routes/chat_routes.py (Score: 53.70)
 **Issue Categories**: 🔄 Complexity Issues:7, 📝 Comment Issues:1, ⚠️ Other Issues:5
 
 **Main Issues**:
+- Function chat_page has very high cyclomatic complexity (17), consider refactoring
+- Function chat_stream has very high cyclomatic complexity (24), consider refactoring
+- Function generate has very high cyclomatic complexity (21), consider refactoring
+- Function add_background has high cyclomatic complexity (12), consider simplifying
 - Function 'chat_page' () is rather long (61 lines), consider refactoring
 - Function 'chat_page' () complexity is high (17), consider simplifying
 - Function 'chat_stream' () is too long (113 lines), consider splitting
@@ -57,10 +61,6 @@
 - Function 'get_initial_background' () is rather long (49 lines), consider refactoring
 - Function 'add_background' () is rather long (59 lines), consider refactoring
 - Code comment ratio is low (9.68%), consider adding more comments
-- Function chat_page has very high cyclomatic complexity (17), consider refactoring
-- Function chat_stream has very high cyclomatic complexity (24), consider refactoring
-- Function generate has very high cyclomatic complexity (21), consider refactoring
-- Function add_background has high cyclomatic complexity (12), consider simplifying
 
 ### 4. /home/runner/work/CABM/CABM/routes/multi_character_routes.py (Score: 49.53)
 **Issue Categories**: 🔄 Complexity Issues:2, ⚠️ Other Issues:3
