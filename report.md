@@ -76,15 +76,15 @@
 **Issue Categories**: 🔄 Complexity Issues:6, ⚠️ Other Issues:3
 
 **Main Issues**:
-- Function format_messages_for_character has very high cyclomatic complexity (32), consider refactoring
-- Function build_character_system_prompt has very high cyclomatic complexity (22), consider refactoring
-- Function call_director_model has very high cyclomatic complexity (17), consider refactoring
 - Function 'format_messages_for_character' () is extremely long (130 lines), must be split
 - Function 'format_messages_for_character' () complexity is severely high (32), must be simplified
 - Function 'build_character_system_prompt' () is too long (105 lines), consider splitting
 - Function 'build_character_system_prompt' () complexity is severely high (22), must be simplified
 - Function 'call_director_model' () is extremely long (121 lines), must be split
 - Function 'call_director_model' () complexity is high (17), consider simplifying
+- Function format_messages_for_character has very high cyclomatic complexity (32), consider refactoring
+- Function build_character_system_prompt has very high cyclomatic complexity (22), consider refactoring
+- Function call_director_model has very high cyclomatic complexity (17), consider refactoring
 
 ## Improvement Suggestions
 
