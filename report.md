@@ -48,7 +48,6 @@
 **Issue Categories**: 🔄 Complexity Issues:7, 📝 Comment Issues:1, ⚠️ Other Issues:5
 
 **Main Issues**:
-- Code comment ratio is low (9.68%), consider adding more comments
 - Function chat_page has very high cyclomatic complexity (17), consider refactoring
 - Function chat_stream has very high cyclomatic complexity (24), consider refactoring
 - Function generate has very high cyclomatic complexity (21), consider refactoring
@@ -61,6 +60,7 @@
 - Function 'generate' () complexity is severely high (21), must be simplified
 - Function 'get_initial_background' () is rather long (49 lines), consider refactoring
 - Function 'add_background' () is rather long (59 lines), consider refactoring
+- Code comment ratio is low (9.68%), consider adding more comments
 
 ### 4. /home/runner/work/CABM/CABM/routes/multi_character_routes.py (Score: 49.53)
 **Issue Categories**: 🔄 Complexity Issues:2, ⚠️ Other Issues:3
