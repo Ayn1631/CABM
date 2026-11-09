@@ -66,25 +66,25 @@
 **Issue Categories**: 🔄 Complexity Issues:2, ⚠️ Other Issues:3
 
 **Main Issues**:
-- Function handle_next_speaker_recursively has very high cyclomatic complexity (36), consider refactoring
 - Function 'handle_next_speaker_recursively' () is extremely long (217 lines), must be split
 - Function 'handle_next_speaker_recursively' () complexity is severely high (36), must be simplified
 - Function 'generate_options_after_recursion' () is rather long (62 lines), consider refactoring
 - Function 'multi_character_chat_stream' () is rather long (63 lines), consider refactoring
+- Function handle_next_speaker_recursively has very high cyclomatic complexity (36), consider refactoring
 
 ### 5. /home/runner/work/CABM/CABM/services/multi_character_service.py (Score: 49.06)
 **Issue Categories**: 🔄 Complexity Issues:6, ⚠️ Other Issues:3
 
 **Main Issues**:
-- Function format_messages_for_character has very high cyclomatic complexity (32), consider refactoring
-- Function build_character_system_prompt has very high cyclomatic complexity (22), consider refactoring
-- Function call_director_model has very high cyclomatic complexity (17), consider refactoring
 - Function 'format_messages_for_character' () is extremely long (130 lines), must be split
 - Function 'format_messages_for_character' () complexity is severely high (32), must be simplified
 - Function 'build_character_system_prompt' () is too long (105 lines), consider splitting
 - Function 'build_character_system_prompt' () complexity is severely high (22), must be simplified
 - Function 'call_director_model' () is extremely long (121 lines), must be split
 - Function 'call_director_model' () complexity is high (17), consider simplifying
+- Function format_messages_for_character has very high cyclomatic complexity (32), consider refactoring
+- Function build_character_system_prompt has very high cyclomatic complexity (22), consider refactoring
+- Function call_director_model has very high cyclomatic complexity (17), consider refactoring
 
 ## Improvement Suggestions
 
